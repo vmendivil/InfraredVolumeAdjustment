@@ -33,10 +33,13 @@ let main argv =
     let envCh = 0 // Envelope channel
 
     // Pin setup
-    let envelopeLed = (Pi.Gpio.[BcmPin.Gpio17]) :?> GpioPin // Led to visualize the envelope input from the audio sensor
-    do
+    let envelopeLed = (Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin // Led to visualize the envelope input from the audio sensor
+    do 
         envelopeLed.PinMode <- GpioPinDriveMode.Output
         envelopeLed.StartSoftPwm(pwmMinRange, pwmMaxRange)
+
+    //let irIn =(Pi.Gpio.[BcmPin.Gpio17]) :?> GpioPin // IR input
+    //let irOut =(Pi.Gpio.[BcmPin.Gpio18]) :?> GpioPin // IR output
 
     let destroy () =
         printf "Destroyed..."
@@ -63,5 +66,5 @@ let main argv =
                 | x ->                printf "Ok : %d" x
         | _ -> printf "."
 
-        Thread.Sleep 1000
+        Thread.Sleep 500
     0
