@@ -5,8 +5,6 @@ VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AutomaticInfraredAudioLeveler", "AutomaticInfraredAudioLeveler\AutomaticInfraredAudioLeveler.fsproj", "{A65D3E4D-2DEC-4C08-9B27-5CFFADAC881F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IR LIRC Config", "IR LIRC Config", "{C7683AFB-FDA0-4599-9878-9D682E51D57E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
