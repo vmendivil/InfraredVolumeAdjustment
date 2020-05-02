@@ -6,11 +6,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="IRConfig\InsigniaRokuTV.json">
+    <None Include="irrp.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="InsigniaRokuTV.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
     <Compile Include="AudioSensor.fs" />
+    <Compile Include="IRTrx.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

@@ -42,9 +42,6 @@ module AudioSensor =
             envelopeLed.PinMode <- GpioPinDriveMode.Output
             envelopeLed.StartSoftPwm(pwmMinRange, pwmMaxRange)
 
-        //let irIn =(Pi.Gpio.[BcmPin.Gpio17]) :?> GpioPin // IR input
-        //let irOut =(Pi.Gpio.[BcmPin.Gpio18]) :?> GpioPin // IR output
-
         let destroy () =
             printf "Destroyed..."
             Thread.Sleep(1)
