@@ -8,6 +8,10 @@ open System.Threading
 
 [<AutoOpen>]
 module private AudioSensorHelpers =
+
+    // Read intervals
+    let timer = 250 // ms
+
     // Pwm
     let pwmMinRange = 0
     let pwmMaxRange = 100
@@ -68,7 +72,8 @@ module AudioSensor =
                         | x ->                printf "Ok : %d" x
                 | _ -> printf "."
 
-                Thread.Sleep 250
+                Thread.Sleep timer
+
         member __.run () =
             try loop()
             with ex -> printfn "%A" ex
