@@ -6,7 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="VolumeLeveler.fs" />
     <None Include="irrp.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -14,6 +13,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="App.config" />
+    <Compile Include="VolumeLeveler.fs" />
     <Compile Include="AudioSensor.fs" />
     <Compile Include="IRTrx.fs" />
     <Compile Include="Program.fs" />
