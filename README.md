@@ -17,7 +17,9 @@
 
 ### Circuit Diagram
 
-Circuit diagram source file is withing this repository. Frizting is the software used for its design.
+Circuit diagram source file is part of this repository. Frizting is the software used for its design.
+
+![Circuit Diagram](https://github.com/vmendivil/InfraredVolumeAdjustment/raw/2d96b543ed73cc4ad8e13aa27e2d2cb04deebc5b/Circuit%20Diagram.jpg)
 
 #### Analog-Digital Converter
 
