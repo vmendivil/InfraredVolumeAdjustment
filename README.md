@@ -27,6 +27,34 @@ Diagram must use ADC PCF8591, however, fritzing didn't have that specific chip, 
 
 The diagram represents an audio input. Current implementation uses Sparkfun Sound Detector and uses Envelope pin output to determine the sound level.
 
+### Configure I2C
+
+The i2c interface in raspberry is closed by default, it has to be open manually.
+
+Steps:
+
+	1) Run command: sudo raspi-config
+	2) Follow path:
+		a. 5 Interfacing Options
+		b. P5 I2C
+		c. Yes
+		d. Finish
+	3) Restart Raspberry
+
+To validate i2c module is started:
+
+	• Command: lsmod | grep i2c
+
+Install i2c-Tools
+
+	• Command: sudo apt-get install i2c-tools
+
+Detect device addresses (which will be used in the program):
+
+	• Command: i2cdetect -y 1
+
+
+
 ### Functions
 
 	1) Record IR signals from remote controller.
