@@ -22,8 +22,8 @@ module private AudioSensorHelpers =
 
     // Audio levels
     let ideal = 5
-    let above = ideal + 2
-    let below = ideal - 0
+    let above = ideal + 4
+    let below = ideal - 7
         
     // Functions
     let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
