@@ -47,7 +47,7 @@ module VolumeLeveler =
     type AudioLeveler (idealVolume) =
 
         // Read intervals
-        let timer = 250 // ms
+        let timer = 200 // ms
 
         // Pwm
         let pwmMinRange = 0
@@ -58,8 +58,12 @@ module VolumeLeveler =
         //let refVoltage = 0.33
 
         // Audio levels
-        let above = idealVolume + 2
-        let below = idealVolume - 2
+        let above = idealVolume + 5
+        let below = idealVolume - 7
+
+        // Max volume increase/decrease from current volume on IR device
+        let maxLevelUp = 5
+        let minLevelDw = 3
             
         // Functions
         let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
@@ -74,6 +78,7 @@ module VolumeLeveler =
             printfn "Ideal Volume: %d" idealVolume
             printfn "Above: %d" above
             printfn "Below: %d" below
+            printfn "MaxLevelUp: %d" maxLevelUp
             printfn "Samples/second: %d" (1000 / timer)
             printfn ""
 
@@ -98,8 +103,9 @@ module VolumeLeveler =
 
         do System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
-        let rec readAudio envelopePrev =
+        let rec readAudio levelDwCounter levelUpCounter envelopePrev =
             Thread.Sleep timer
+            
             let envelopeCur = int <| adc.ReadAddressByte envCh
 
             envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
@@ -112,17 +118,25 @@ module VolumeLeveler =
             match envelopeCur with
             | x when x > above -> 
                                 printNext "Up"
-                                device.volumeDown() |> Async.RunSynchronously
-                                readAudio envelopeCur
+                                if levelDwCounter < minLevelDw
+                                then
+                                    device.volumeDown() |> Async.RunSynchronously
+                                    readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
+                                else
+                                    readAudio levelDwCounter levelUpCounter envelopeCur
             | x when x < below -> 
                                 printNext "Dw"
-                                device.volumeUp() |> Async.RunSynchronously
-                                readAudio envelopeCur
+                                if levelUpCounter < maxLevelUp 
+                                then 
+                                    device.volumeUp() |> Async.RunSynchronously
+                                    readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
+                                else
+                                    readAudio levelDwCounter levelUpCounter envelopeCur
             | x -> 
                                 printNext "Ok"
-                                readAudio envelopeCur
+                                readAudio levelDwCounter levelUpCounter envelopeCur
 
         member __.run () =
-            try readAudio -1
+            try readAudio 0 0 -1
             with ex -> printfn "%A" ex
                        destroy()
