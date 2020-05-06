@@ -103,6 +103,7 @@ The program follows some assumptions:
 	d) You can properly ssh to your Raspberry
 
 Deploy app:
+
 	1) Clone repo
 	2) Open PowerShell and run Deploy.ps1 script
 		a. Script assumes you can ssh to your Raspberry.
@@ -110,6 +111,7 @@ Deploy app:
 		c. In lines 8 and 9, update the IP and the path where you will be deploying your code
 
 Run the app:
+
 	1) Ssh to your raspberry and navigate to the folder where the code was deployed
 	2) Run program: dotnet AutomaticInfraredAudioLeveler.dll <option to run>
 		a. Audio leveler: dotnet AutomaticInfraredAudioLeveler.dll 111 15
