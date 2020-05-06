@@ -18,7 +18,11 @@ Circuit diagram source file is part of this repository. Frizting is the software
 
 #### Analog-Digital Converter
 
-Diagram must use ADC PCF8591, however, fritzing didn't have that specific chip, so, for drawing purposes, a different chip with the same number of pins was used.
+Diagram is using a different chip because the drawing software used didn't have the chip was effectively used. 
+
+Correct chip is ADC PCF8591. Correct port mapping for the chip is displayed below. Physical connections in the diagram are correct and match PCF8591 pins.
+
+![PCF8591](https://github.com/vmendivil/InfraredVolumeAdjustment/raw/e492168e3ce7194127b22192b4772eaa521c0d30/ADC%20PCF8591.png)
 
 #### Sound Detector
 
