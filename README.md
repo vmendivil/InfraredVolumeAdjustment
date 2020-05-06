@@ -1,19 +1,14 @@
 ### BOM
 
 * (1) Raspberry PI 4
-* (1) IR Transmitter
-  * https://www.digikey.com/product-detail/en/everlight-electronics-co-ltd/IR333C-H0-L10/1080-1082-ND/2675573
-* (1) IR Receiver
-  * https://www.digikey.com/product-detail/en/vishay-semiconductor-opto-division/TSOP38238/751-1227-ND/1681362
-* (1) Analog-Digital Converter PCF8591
-  * https://www.nxp.com/docs/en/data-sheet/PCF8591.pdf
+* (1) [IT Transmitter](https://www.digikey.com/product-detail/en/everlight-electronics-co-ltd/IR333C-H0-L10/1080-1082-ND/2675573)
+* (1) [IR Receiver](https://www.digikey.com/product-detail/en/vishay-semiconductor-opto-division/TSOP38238/751-1227-ND/1681362)
+* (1) [Analog-Digital Converter PCF8591](https://www.nxp.com/docs/en/data-sheet/PCF8591.pdf)
 * (1) Led
 * (3) Resistance 10k
 * (2) Resistance 220k
-* (1) Transistory NPN
-  * https://www.digikey.com/product-detail/en/on-semiconductor/PN2222ATF/PN2222ATFCT-ND/3504402
-* (1) Audio Detector
-  * https://www.digikey.com/product-detail/en/sparkfun-electronics/SEN-14262/1568-1721-ND/7725299
+* (1) [Transistory NPN](https://www.digikey.com/product-detail/en/on-semiconductor/PN2222ATF/PN2222ATFCT-ND/3504402)
+* (1) [Audio Detector](https://www.digikey.com/product-detail/en/sparkfun-electronics/SEN-14262/1568-1721-ND/7725299)
 
 ### Circuit Diagram
 
