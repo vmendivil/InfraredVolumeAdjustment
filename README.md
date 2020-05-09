@@ -1,3 +1,9 @@
+### What this project does?
+
+This project is inteded to record IR signals from a remote controler, specially volume up and volume down signals, then read the volume level from a device and based on preconfigured parameters decide if the volume is above or below of what is an ideal level of sound and based on that send IR signals to the device to increase or decrease the volume in order to try to keep a constant level of sound.
+
+The project can receive a parameter to decide what piece of code to execute which include just reading audio levels, or independantly sending IR volume up/down signals as well as running the application that will merge all the functionality to effectively read sound levels and send IR signals as needed.
+
 ### BOM
 
 * (1) Raspberry PI 4
@@ -12,13 +18,17 @@
 
 ### Circuit Diagram
 
-Circuit diagram source file is part of this repository. Frizting is the software used for its design.
+Circuit diagram source file is part of this repository. Frizting is the software tool used for its design.
 
 ![Circuit Diagram](https://github.com/vmendivil/InfraredVolumeAdjustment/raw/2d96b543ed73cc4ad8e13aa27e2d2cb04deebc5b/Circuit%20Diagram.jpg)
 
 #### Analog-Digital Converter
 
-Diagram must use ADC PCF8591, however, fritzing didn't have that specific chip, so, for drawing purposes, a different chip with the same number of pins was used.
+Diagram is using a different chip because the drawing software didn't have the chip that was effectively used. 
+
+Correct chip is ADC PCF8591. Correct port mapping for the chip is displayed below. Physical connections in the diagram are correct and match PCF8591 pins.
+
+![PCF8591](https://github.com/vmendivil/InfraredVolumeAdjustment/raw/e492168e3ce7194127b22192b4772eaa521c0d30/ADC%20PCF8591.png)
 
 #### Sound Detector
 
@@ -50,7 +60,7 @@ Detect device addresses (which will be used in the program):
 
 	• Command: i2cdetect -y 1
 
-
+Restart Raspberry.
 
 ### Functions
 
@@ -127,7 +137,7 @@ The program follows some assumptions:
 	c) You have dotNet installed
 	d) You can properly ssh to your Raspberry
 
-Deploy app:
+#### Deploy app
 
 	1) Clone repo
 	2) Open PowerShell and run Deploy.ps1 script
@@ -135,7 +145,7 @@ Deploy app:
 		b. $SshPrivateKey must be the path to your private key
 		c. In lines 8 and 9, update the IP and the path where you will be deploying your code
 
-Run the app:
+#### Run the app
 
 	1) Ssh to your raspberry and navigate to the folder where the code was deployed
 	2) Run program: dotnet AutomaticInfraredAudioLeveler.dll <option to run>
