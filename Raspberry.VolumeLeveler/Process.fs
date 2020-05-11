@@ -21,7 +21,7 @@ module private ProcessHelpers =
     let startDaemon () = "pigpiod" |> sendCommand |> Async.RunSynchronously // Start pigpio daemon
     let stopDaemon () = "killall pigpiod" |> sendCommand |> Async.RunSynchronously // Stop pigpio daemon
 
-    let profilesFile = sprintf @"AudioProfiles.json"
+    let profilesFile = sprintf @"IRAudioProfiles.json"
 
 
 [<AutoOpen>]
