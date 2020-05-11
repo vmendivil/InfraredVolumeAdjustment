@@ -73,12 +73,12 @@ module Process =
 
         member __.existProfile profileName = loadAudioProfiles().Profiles |> List.exists (fun x -> x.Name = profileName)
 
-        member this.removeProfile profileName =
-            match this.existProfile profileName with
+        member this.removeProfile (profile: AudioProfile) =
+            match this.existProfile profile.Name with
             | true -> 
-                    File.Delete((sprintf "%s.json" profileName))
+                    File.Delete(profile.IRFileName)
                     loadAudioProfiles().Profiles 
-                    |> List.filter (fun x -> x.Name <> profileName)
+                    |> List.filter (fun x -> x.Name <> profile.Name)
                     |> fun filteredProfiles -> AudioProfiles.Init filteredProfiles
                     |> saveProfiles
                     |> Ok

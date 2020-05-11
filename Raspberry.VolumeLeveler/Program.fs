@@ -66,10 +66,15 @@ module private ProgramHelpers =
 
     let deleteProfile () =
         printfn "\nDelete profile"
-        let name = readConsole "Profile name: "
-        match profiles.removeProfile name with
-        | Ok _ -> 
-                printfn "Profile deleted"
+        let profileName = readConsole "Profile name: "
+
+        let profile =
+            match profiles.getProfile profileName with
+            | Ok profile -> profile
+            | Error x -> failwithf "%s" x
+
+        match profiles.removeProfile profile with
+        | Ok _ -> printfn "Profile deleted"
         | Error x -> failwithf "%s" x
 
     let updateProfile () =
@@ -88,7 +93,7 @@ module private ProgramHelpers =
         let maxIRIncreasesAllowed = readConsole (sprintf "Max IR volume increases allowed [%d]: " profile.MaxIRIncreasesAllowed)
         let maxIRDecreasesAllowed = readConsole (sprintf "Max IR volume decreases allowed [%d]: " profile.MaxIRDecreasesAllowed)
 
-        profiles.removeProfile profile.Name |> ignore
+        profiles.removeProfile profile |> ignore
         {
             profile with IdealAudioLevel = int idealAudioLevel
                          IdealUpperLimit = int idealUpperLimit
