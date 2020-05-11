@@ -14,8 +14,6 @@
     </Content>
     <None Include="App.config" />
     <Compile Include="VolumeLeveler.fs" />
-    <Compile Include="AudioSensor.fs" />
-    <Compile Include="IRTrx.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -27,6 +25,10 @@
 
   <ItemGroup>
     <PackageReference Update="FSharp.Core" Version="4.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
