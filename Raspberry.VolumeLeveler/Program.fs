@@ -44,4 +44,6 @@ let main argv =
 
     run false
 
+    printfn "Finished"
+
     0

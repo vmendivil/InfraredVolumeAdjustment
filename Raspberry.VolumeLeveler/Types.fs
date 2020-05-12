@@ -137,7 +137,7 @@ module Process =
             led
 
         let destroy () =
-            printf "Destroyed..."
+            printfn "Destroyed..."
             Thread.Sleep(1)
             envelopeLed.SoftPwmValue <- 0
 
@@ -165,7 +165,7 @@ module Process =
 
     type IrAudioLeveler (profile: AudioProfile) =
 
-        let timer = (int) ConfigurationManager.AppSettings.["AudioLectureSampleMS"] // Read intervals
+        let timer = int ConfigurationManager.AppSettings.["AudioLectureSampleMS"] // Read intervals
 
         do
             Pi.Init<BootstrapWiringPi>()
@@ -186,7 +186,7 @@ module Process =
         let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
 
         // Configure I2C devices
-        let adcAddress = (int) ConfigurationManager.AppSettings.["AdcAddress"] // run i2cdetect -y 1
+        let adcAddress = int ConfigurationManager.AppSettings.["AdcAddress"] // run i2cdetect -y 1
         let adc = Pi.I2C.AddDevice(adcAddress)
         let audioEnvelopeChannel = 0 // Envelope channel
 
@@ -197,10 +197,13 @@ module Process =
             led.StartSoftPwm(pwmMinRange, pwmMaxRange)
             led
 
+        // Low volume level considered ok to avoid unnecessarily volume increases
+        let lowVolumeLevelConsideredMute = int ConfigurationManager.AppSettings.["LowVolumeLevelConsideredMute"]
+
         let trx = new IRTrxCommands(profile.IRFileName)
 
         let destroy () =
-            printf "Destroyed..."
+            printfn "Destroyed..."
             Thread.Sleep(1)
             trx :> IDisposable |> fun x -> x.Dispose()
             envelopeLed.SoftPwmValue <- 0
@@ -220,26 +223,30 @@ module Process =
                 then printf "\n%s : %d " text envelopeCur
                 else printf "."
 
-            match envelopeCur with
-            | x when x > profile.IdealUpperLimit -> 
-                                printNext "Up"
-                                if levelDwCounter < profile.MaxIRDecreasesAllowed
-                                then
-                                    trx.volumeDown() |> Async.RunSynchronously
-                                    readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
-                                else
+            try
+                match envelopeCur with
+                | x when x > profile.IdealUpperLimit -> 
+                                    printNext "Up"
+                                    if levelDwCounter < profile.MaxIRDecreasesAllowed
+                                    then
+                                        trx.volumeDown() |> Async.RunSynchronously
+                                        readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
+                                    else
+                                        readAudio levelDwCounter levelUpCounter envelopeCur
+                | x when x < profile.IdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+                                    printNext "Dw"
+                                    if levelUpCounter < profile.MaxIRIncreasesAllowed 
+                                    then 
+                                        trx.volumeUp() |> Async.RunSynchronously
+                                        readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
+                                    else
+                                        readAudio levelDwCounter levelUpCounter envelopeCur
+                | x -> 
+                                    printNext "Ok"
                                     readAudio levelDwCounter levelUpCounter envelopeCur
-            | x when x < profile.IdealBottomLimit -> 
-                                printNext "Dw"
-                                if levelUpCounter < profile.MaxIRIncreasesAllowed 
-                                then 
-                                    trx.volumeUp() |> Async.RunSynchronously
-                                    readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
-                                else
-                                    readAudio levelDwCounter levelUpCounter envelopeCur
-            | x -> 
-                                printNext "Ok"
-                                readAudio levelDwCounter levelUpCounter envelopeCur
+            with ex -> 
+                printfn "Exception during signal processing: %A" ex.Message
+                readAudio levelDwCounter levelUpCounter envelopeCur        
 
         member __.run () =
             try readAudio 0 0 -1
