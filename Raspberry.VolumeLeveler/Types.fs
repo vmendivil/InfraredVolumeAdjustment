@@ -1,4 +1,4 @@
-﻿namespace Vhmc.Pi.VolumeLeveler
+﻿namespace Vhmc.Pi.VolumeLeveler.Types
 
 open Unosquare.RaspberryIO.Abstractions
 open System.Diagnostics
@@ -8,6 +8,8 @@ open System.Configuration
 open Unosquare.RaspberryIO
 open Unosquare.WiringPi
 open System.Threading
+open Vhmc.Pi.VolumeLeveler.Domain
+open Vhmc.Pi.VolumeLeveler.Common
 
 
 [<AutoOpen>]
@@ -20,8 +22,7 @@ module private ProcessHelpers =
         }
     let startDaemon () = "pigpiod" |> sendCommand |> Async.RunSynchronously // Start pigpio daemon
     let stopDaemon () = "killall pigpiod" |> sendCommand |> Async.RunSynchronously // Stop pigpio daemon
-
-    let profilesFile = sprintf @"IRAudioProfiles.json"
+    let profilesFile = sprintf @"IR_AudioProfiles.json"
 
 
 [<AutoOpen>]
@@ -92,6 +93,19 @@ module Process =
                     |> saveProfiles
                     |> Ok
             | true -> Error "ProfileAlreadyExists"
+
+        member this.updateProfile (profile: AudioProfile) =
+            match this.existProfile profile.Name with
+            | true ->
+                    let audioProfiles = loadAudioProfiles()
+                    let newProfiles =
+                        audioProfiles.Profiles
+                        |> List.filter (fun x -> x.Name <> profile.Name)
+                        |> fun x -> x @ [profile]
+                    { audioProfiles with Profiles = newProfiles } 
+                    |> saveProfiles
+                    |> Ok
+            | false -> Error "ProfileNotFound"
 
         member __.getProfile profileName =
             match loadAudioProfiles().Profiles |> List.tryFind (fun x -> x.Name = profileName) with

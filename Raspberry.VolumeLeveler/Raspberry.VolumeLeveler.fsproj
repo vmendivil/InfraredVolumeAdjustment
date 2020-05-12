@@ -12,7 +12,8 @@
     <None Include="App.config" />
     <Compile Include="Common.fs" />
     <Compile Include="Domain.fs" />
-    <Compile Include="Process.fs" />
+    <Compile Include="Types.fs" />
+    <Compile Include="Functions.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
