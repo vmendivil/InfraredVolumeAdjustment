@@ -32,7 +32,8 @@ module Process =
         let irTrxPin = (int) BcmPin.Gpio18
         let irCommand pin irConfigFile instruction = sprintf "python irrp.py -p -g%d -f%s %s" pin irConfigFile instruction
 
-        do startDaemon()
+        do 
+            startDaemon()
         
         member __.volumeUp () = sendCommand <| (irCommand irTrxPin irCommandsFile "VolumeUp")
         member __.volumeDown () = sendCommand <| (irCommand irTrxPin irCommandsFile "VolumeDown")
@@ -83,7 +84,7 @@ module Process =
                     |> fun filteredProfiles -> AudioProfiles.Init filteredProfiles
                     |> saveProfiles
                     |> Ok
-            | _ -> Error "ProfileNotFound"
+            | false -> Error "ProfileNotFound"
 
         member this.createProfile (profile: AudioProfile) =
             match this.existProfile profile.Name with
@@ -140,7 +141,8 @@ module Process =
             Thread.Sleep(1)
             envelopeLed.SoftPwmValue <- 0
 
-        do System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
+        do 
+            System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
         let rec readAudio envelopePrev =
             Thread.Sleep timer
@@ -190,7 +192,7 @@ module Process =
 
         // Led to visualize the envelope input from the audio sensor
         let envelopeLed = 
-            let led =(Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
+            let led = (Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
             led.PinMode <- GpioPinDriveMode.Output
             led.StartSoftPwm(pwmMinRange, pwmMaxRange)
             led
@@ -203,7 +205,8 @@ module Process =
             trx :> IDisposable |> fun x -> x.Dispose()
             envelopeLed.SoftPwmValue <- 0
 
-        do System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
+        do 
+            System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
         let rec readAudio levelDwCounter levelUpCounter envelopePrev =
             Thread.Sleep timer
