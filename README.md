@@ -148,21 +148,4 @@ The program follows some assumptions:
 #### Run the app
 
 	1) Ssh to your raspberry and navigate to the folder where the code was deployed
-	2) Run program: dotnet AutomaticInfraredAudioLeveler.dll <option to run>
-		a. Audio leveler: dotnet AutomaticInfraredAudioLeveler.dll 111 15
-		b. Audio sensor: dotnet AutomaticInfraredAudioLeveler.dll 222
-		c. Volume up: dotnet AutomaticInfraredAudioLeveler.dll 333
-		d. Volume down: dotnet AutomaticInfraredAudioLeveler.dll 444
-
-The app have different actions:
-
-	• Command: dotnet AutomaticInfraredAudioLeveler.dll <program to run> <ideal volume>
-
-```F#
-	    match programToRun with
-	    | 111 -> AudioLeveler(idealVolume).run()
-	    | 222 -> AudioSensor().run()
-	    | 333 -> IRTrx.IRInsigniaRokuTV().volumeUp()
-	    | 444 -> IRTrx.IRInsigniaRokuTV().volumeDown()
-	    | _ -> printfn "Option not valid: %d" programToRun
-```
+	2) Run program: dotnet AutomaticInfraredAudioLeveler.dll
