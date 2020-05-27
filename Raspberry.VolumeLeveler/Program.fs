@@ -1,4 +1,4 @@
-﻿open Vhmc.Pi.VolumeLeveler.Functions
+﻿open Vhmc.Pi.Functions
 
 
 [<EntryPoint>]

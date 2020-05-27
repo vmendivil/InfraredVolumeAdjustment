@@ -1,4 +1,4 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Common
+﻿namespace Vhmc.Pi.Common
 
 open Newtonsoft.Json
 

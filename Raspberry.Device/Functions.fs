@@ -1,8 +1,8 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Functions
+﻿namespace Vhmc.Pi.Functions
 
 open System
-open Vhmc.Pi.VolumeLeveler.Domain
-open Vhmc.Pi.VolumeLeveler.Types
+open Vhmc.Pi.Domain
+open Vhmc.Pi.Types
 
 
 [<AutoOpen>]

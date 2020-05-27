@@ -1,4 +1,4 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Domain
+﻿namespace Vhmc.Pi.Domain
 
 [<AutoOpen>]
 module Domain =

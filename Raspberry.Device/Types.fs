@@ -1,4 +1,4 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Types
+﻿namespace Vhmc.Pi.Types
 
 open Unosquare.RaspberryIO.Abstractions
 open System.Diagnostics
@@ -8,8 +8,8 @@ open System.Configuration
 open Unosquare.RaspberryIO
 open Unosquare.WiringPi
 open System.Threading
-open Vhmc.Pi.VolumeLeveler.Domain
-open Vhmc.Pi.VolumeLeveler.Common
+open Vhmc.Pi.Domain
+open Vhmc.Pi.Common
 
 
 [<AutoOpen>]
