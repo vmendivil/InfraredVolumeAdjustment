@@ -5,8 +5,8 @@ Set-Location Raspberry.VolumeLeveler
 #Remove-Item $PublishPath -r
 dotnet build -c Debug
 #dotnet publish --force -c Debug
-#ssh pi@192.168.1.92 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/AutomaticInfraredAudioLeveler/*"
-scp -i $SshPrivateKey -r $PublishPath pi@192.168.1.92:./Vhmc/App/AutomaticInfraredAudioLeveler
+ssh pi@192.168.1.48 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/AutomaticInfraredAudioLeveler/*"
+scp -i $SshPrivateKey -r $PublishPath pi@192.168.1.48:./Vhmc/App/AutomaticInfraredAudioLeveler
 Set-Location ..
 Get-Date -Format G
 Write-Output 'Deployed to Raspberry!'

@@ -50,7 +50,7 @@ module Functions =
         let profileName = readConsole "Profile name: "
         let profile = getOrFailProfile profileName
 
-        readConsole "Press Enter to start. Use Ctrl+C to stop process" |> ignore
+        readConsole "Press Enter to start. Press any key to stop" |> ignore
         IrAudioLeveler(profile).run()
         printfn "Process stoped"
     
@@ -151,7 +151,7 @@ module Functions =
     let testAudioSensor () =
         printfn "\nProfile configuration"
 
-        readConsole "Press Enter to start. Use Ctrl+C to stop process" |> ignore
+        readConsole "Press Enter to start. Press any key to stop" |> ignore
         AudioSensor().run()
         printfn "Process stoped"
 

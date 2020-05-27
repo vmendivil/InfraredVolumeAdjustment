@@ -145,21 +145,29 @@ module Process =
             System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
         let rec readAudio envelopePrev =
-            Thread.Sleep timer
+            async{
+                Thread.Sleep timer
             
-            let envelopeCur = int <| adc.ReadAddressByte envCh
-            envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
+                let envelopeCur = int <| adc.ReadAddressByte envCh
+                envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
 
-            let printNext text =
-                if envelopeCur <> envelopePrev
-                then printf "\n%s : %d " text envelopeCur
-                else printf "."
+                let printNext text =
+                    if envelopeCur <> envelopePrev
+                    then printf "\n%s : %d " text envelopeCur
+                    else printf "."
 
-            printNext ">"
-            readAudio envelopeCur
+                printNext ">"
+                do! readAudio envelopeCur
+            }
 
         member __.run () =
-            try readAudio -1
+            try 
+                use cancellationSource = new CancellationTokenSource()
+                Async.Start((readAudio -1), cancellationSource.Token)
+
+                Console.ReadKey() |> ignore
+                cancellationSource.Cancel()
+
             with ex -> printfn "%A" ex
                        destroy()
 
@@ -212,43 +220,51 @@ module Process =
             System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
         let rec readAudio levelDwCounter levelUpCounter envelopePrev =
-            Thread.Sleep timer
+            async{
+                Thread.Sleep timer
             
-            let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
+                let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
 
-            envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
+                envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
 
-            let printNext text =
-                if envelopeCur <> envelopePrev
-                then printf "\n%s : %d " text envelopeCur
-                else printf "."
+                let printNext text =
+                    if envelopeCur <> envelopePrev
+                    then printf "\n%s : %d " text envelopeCur
+                    else printf "."
 
-            try
-                match envelopeCur with
-                | x when x > profile.IdealUpperLimit -> 
-                                    printNext "Up"
-                                    if levelDwCounter < profile.MaxIRDecreasesAllowed
-                                    then
-                                        trx.volumeDown() |> Async.RunSynchronously
-                                        readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
-                                    else
-                                        readAudio levelDwCounter levelUpCounter envelopeCur
-                | x when x < profile.IdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
-                                    printNext "Dw"
-                                    if levelUpCounter < profile.MaxIRIncreasesAllowed 
-                                    then 
-                                        trx.volumeUp() |> Async.RunSynchronously
-                                        readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
-                                    else
-                                        readAudio levelDwCounter levelUpCounter envelopeCur
-                | x -> 
-                                    printNext "Ok"
-                                    readAudio levelDwCounter levelUpCounter envelopeCur
-            with ex -> 
-                printfn "Exception during signal processing: %A" ex.Message
-                readAudio levelDwCounter levelUpCounter envelopeCur        
+                try
+                    match envelopeCur with
+                    | x when x > profile.IdealUpperLimit -> 
+                                        printNext "Up"
+                                        if levelDwCounter < profile.MaxIRDecreasesAllowed
+                                        then
+                                            trx.volumeDown() |> Async.RunSynchronously
+                                            do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
+                                        else
+                                            do! readAudio levelDwCounter levelUpCounter envelopeCur
+                    | x when x < profile.IdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+                                        printNext "Dw"
+                                        if levelUpCounter < profile.MaxIRIncreasesAllowed 
+                                        then 
+                                            trx.volumeUp() |> Async.RunSynchronously
+                                            do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
+                                        else
+                                            do! readAudio levelDwCounter levelUpCounter envelopeCur
+                    | x -> 
+                                        printNext "Ok"
+                                        do! readAudio levelDwCounter levelUpCounter envelopeCur
+                with ex -> 
+                    printfn "Exception during signal processing: %A" ex.Message
+                    do! readAudio levelDwCounter levelUpCounter envelopeCur
+            }
 
         member __.run () =
-            try readAudio 0 0 -1
+            try 
+                use cancellationSource = new CancellationTokenSource()
+                Async.Start((readAudio 0 0 -1), cancellationSource.Token)
+
+                Console.ReadKey() |> ignore
+                cancellationSource.Cancel()
+
             with ex -> printfn "%A" ex
                        destroy()

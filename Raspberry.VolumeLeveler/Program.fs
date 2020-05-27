@@ -29,7 +29,7 @@ let main argv =
         try
             match option with
             | 0 -> exitApplication ()
-            | 1 -> startIRAudioLeveler () |> fun _ -> run true
+            | 1 -> startIRAudioLeveler () |> fun _ -> run false
             | 2 -> createProfile () |> fun _ -> run false
             | 3 -> listProfiles () |> fun _ -> run true
             | 4 -> deleteProfile () |> fun _ -> run false
@@ -39,7 +39,7 @@ let main argv =
             | 8 -> testAudioSensor () |> fun _ -> run false
             | _ -> invalidOption () |> fun _ -> run false
         with ex ->
-                printfn "Exception ocurred: %s" ex.Message
+                printfn "Exception ocurred: %s\nStackTrace: %s" ex.Message ex.StackTrace
                 run false
 
     run false
