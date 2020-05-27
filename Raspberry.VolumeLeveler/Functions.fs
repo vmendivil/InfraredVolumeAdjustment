@@ -58,9 +58,9 @@ module Functions =
         printfn "\nCreate profile"
         let profileName = readConsole "Profile name: "
         let irFileName = buildIRFileName profileName
-        let idealAudioLevel = readConsoleInt "Ideal audio level: "
-        let idealUpperLimit = readConsoleInt "Ideal upper limit: "
-        let idealBottomLimit = readConsoleInt "Ideal bottom limit: "
+        let deviceIdealInitialAudioLevel = readConsoleInt "Device ideal initial audio level: "
+        let soundIdealUpperLimit = readConsoleInt "Sound ideal upper limit: "
+        let soundIdealBottomLimit = readConsoleInt "Sound ideal bottom limit: "
         let maxIRIncreasesAllowed = readConsoleInt "Max IR volume increases allowed: "
         let maxIRDecreasesAllowed = readConsoleInt "Max IR volume decreases allowed: "
 
@@ -75,11 +75,11 @@ module Functions =
         {
             Name = profileName
             IRFileName = irFileName
-            IdealAudioLevel = int idealAudioLevel
-            IdealUpperLimit = int idealUpperLimit
-            IdealBottomLimit = int idealBottomLimit
-            MaxIRIncreasesAllowed = int maxIRIncreasesAllowed
-            MaxIRDecreasesAllowed = int maxIRDecreasesAllowed
+            DeviceIdealInitialAudioLevel = deviceIdealInitialAudioLevel
+            SoundIdealUpperLimit = soundIdealUpperLimit
+            SoundIdealBottomLimit = soundIdealBottomLimit
+            MaxIRIncreasesAllowed = maxIRIncreasesAllowed
+            MaxIRDecreasesAllowed = maxIRDecreasesAllowed
         } |> createOrFailProfile
     
     let listProfiles () =
@@ -102,18 +102,18 @@ module Functions =
         let profile = getOrFailProfile profileName
 
         printfn ""
-        let idealAudioLevel = readConsoleInt (sprintf "Ideal audio level [%d]: " profile.IdealAudioLevel)
-        let idealUpperLimit = readConsoleInt (sprintf "Ideal upper limit [%d]: "profile.IdealUpperLimit)
-        let idealBottomLimit = readConsoleInt (sprintf "Ideal bottom limit [%d]: " profile.IdealBottomLimit)
+        let deviceIdealInitialAudioLevel = readConsoleInt (sprintf "Device ideal initial audio level [%d]: " profile.DeviceIdealInitialAudioLevel)
+        let soundIdealUpperLimit = readConsoleInt (sprintf "Sound ideal upper limit [%d]: "profile.SoundIdealUpperLimit)
+        let soundIdealBottomLimit = readConsoleInt (sprintf "Sound ideal bottom limit [%d]: " profile.SoundIdealBottomLimit)
         let maxIRIncreasesAllowed = readConsoleInt (sprintf "Max IR volume increases allowed [%d]: " profile.MaxIRIncreasesAllowed)
         let maxIRDecreasesAllowed = readConsoleInt (sprintf "Max IR volume decreases allowed [%d]: " profile.MaxIRDecreasesAllowed)
 
         {
-            profile with IdealAudioLevel = int idealAudioLevel
-                         IdealUpperLimit = int idealUpperLimit
-                         IdealBottomLimit = int idealBottomLimit
-                         MaxIRIncreasesAllowed = int maxIRIncreasesAllowed
-                         MaxIRDecreasesAllowed = int maxIRDecreasesAllowed
+            profile with DeviceIdealInitialAudioLevel = deviceIdealInitialAudioLevel
+                         SoundIdealUpperLimit = soundIdealUpperLimit
+                         SoundIdealBottomLimit = soundIdealBottomLimit
+                         MaxIRIncreasesAllowed = maxIRIncreasesAllowed
+                         MaxIRDecreasesAllowed = maxIRDecreasesAllowed
         } |> updateOrFailProfile
 
         printfn "\nProfile %s updated" profileName

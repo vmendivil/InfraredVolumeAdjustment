@@ -220,7 +220,7 @@ module Process =
 
                 try
                     match envelopeCur with
-                    | x when x > profile.IdealUpperLimit -> 
+                    | x when x > profile.SoundIdealUpperLimit -> 
                                         printNext "Up"
                                         if levelDwCounter < profile.MaxIRDecreasesAllowed
                                         then
@@ -228,7 +228,7 @@ module Process =
                                             do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
                                         else
                                             do! readAudio levelDwCounter levelUpCounter envelopeCur
-                    | x when x < profile.IdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+                    | x when x < profile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
                                         printNext "Dw"
                                         if levelUpCounter < profile.MaxIRIncreasesAllowed 
                                         then 

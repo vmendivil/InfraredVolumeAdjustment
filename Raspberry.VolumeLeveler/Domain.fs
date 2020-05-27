@@ -7,9 +7,9 @@ module Domain =
         {
             Name: string
             IRFileName: string
-            IdealAudioLevel: int
-            IdealUpperLimit: int
-            IdealBottomLimit: int
+            DeviceIdealInitialAudioLevel: int
+            SoundIdealUpperLimit: int
+            SoundIdealBottomLimit: int
             MaxIRIncreasesAllowed: int
             MaxIRDecreasesAllowed: int
         }
@@ -18,9 +18,9 @@ module Domain =
                 {
                     Name = ""
                     IRFileName = ""
-                    IdealAudioLevel = 0
-                    IdealUpperLimit = 0
-                    IdealBottomLimit = 0
+                    DeviceIdealInitialAudioLevel = 0
+                    SoundIdealUpperLimit = 0
+                    SoundIdealBottomLimit = 0
                     MaxIRIncreasesAllowed = 0
                     MaxIRDecreasesAllowed = 0
                 }
@@ -29,9 +29,9 @@ module Domain =
                 printfn "Profile values:"
                 printfn "Name: %s" this.Name
                 printfn "IRFileName: %s" this.IRFileName
-                printfn "IdealAudioLevel: %d" this.IdealAudioLevel
-                printfn "IdealUpperLimit: %d" this.IdealUpperLimit
-                printfn "IdealBottomLimit: %d" this.IdealBottomLimit
+                printfn "IdealAudioLevel: %d" this.DeviceIdealInitialAudioLevel
+                printfn "IdealUpperLimit: %d" this.SoundIdealUpperLimit
+                printfn "IdealBottomLimit: %d" this.SoundIdealBottomLimit
                 printfn "MaxIRIncreasesAllowed: %d" this.MaxIRIncreasesAllowed
                 printfn "MaxIRDecreasesAllowed: %d" this.MaxIRDecreasesAllowed
                 printfn ""
