@@ -29,9 +29,9 @@ module Domain =
                 printfn "Profile values:"
                 printfn "Name: %s" this.Name
                 printfn "IRFileName: %s" this.IRFileName
-                printfn "IdealAudioLevel: %d" this.DeviceIdealInitialAudioLevel
-                printfn "IdealUpperLimit: %d" this.SoundIdealUpperLimit
-                printfn "IdealBottomLimit: %d" this.SoundIdealBottomLimit
+                printfn "DeviceIdealInitialAudioLevel: %d" this.DeviceIdealInitialAudioLevel
+                printfn "SoundIdealUpperLimit: %d" this.SoundIdealUpperLimit
+                printfn "SoundIdealBottomLimit: %d" this.SoundIdealBottomLimit
                 printfn "MaxIRIncreasesAllowed: %d" this.MaxIRIncreasesAllowed
                 printfn "MaxIRDecreasesAllowed: %d" this.MaxIRDecreasesAllowed
                 printfn ""
