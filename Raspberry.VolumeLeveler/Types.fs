@@ -13,6 +13,41 @@ open Vhmc.Pi.VolumeLeveler.Common
 
 
 [<AutoOpen>]
+module private ProcessInitialize =
+
+    do
+        Pi.Init<BootstrapWiringPi>()
+    
+    // Read intervals
+    let timer = int ConfigurationManager.AppSettings.["AudioLectureSampleMS"]
+
+    // Pwm
+    let pwmMinRange = 0
+    let pwmMaxRange = 100
+    
+    // i2c configuration
+    let accuracy = 255 // 8 bits
+                
+    // Functions
+    let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
+    
+    // Configure I2C devices
+    let adcAddress = int ConfigurationManager.AppSettings.["AdcAddress"] // run i2cdetect -y 1
+    let adc = Pi.I2C.AddDevice(adcAddress)
+    let audioEnvelopeChannel = 0 // Envelope channel
+
+    // Low volume level considered ok to avoid unnecessarily volume increases
+    let lowVolumeLevelConsideredMute = int ConfigurationManager.AppSettings.["LowVolumeLevelConsideredMute"]
+    
+    // Led to visualize the envelope input from the audio sensor
+    let envelopeLed = 
+        let led = (Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
+        led.PinMode <- GpioPinDriveMode.Output
+        led.StartSoftPwm(pwmMinRange, pwmMaxRange)
+        led
+
+
+[<AutoOpen>]
 module private ProcessHelpers =
 
     let sendCommand command = 
@@ -117,25 +152,6 @@ module Process =
 
     type AudioSensor () =
 
-        let timer = 200
-        let pwmMinRange = 0
-        let pwmMaxRange = 100
-        let accuracy = 255 
-        let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
-
-        do
-            Pi.Init<BootstrapWiringPi>()
-
-        let adcAddress = 0x48
-        let adc = Pi.I2C.AddDevice(adcAddress)
-        let envCh = 0
-
-        let envelopeLed = 
-            let led =(Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
-            led.PinMode <- GpioPinDriveMode.Output
-            led.StartSoftPwm(pwmMinRange, pwmMaxRange)
-            led
-
         let destroy () =
             printfn "Destroyed..."
             Thread.Sleep(1)
@@ -148,7 +164,7 @@ module Process =
             async{
                 Thread.Sleep timer
             
-                let envelopeCur = int <| adc.ReadAddressByte envCh
+                let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
                 envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
 
                 let printNext text =
@@ -173,40 +189,10 @@ module Process =
 
     type IrAudioLeveler (profile: AudioProfile) =
 
-        let timer = int ConfigurationManager.AppSettings.["AudioLectureSampleMS"] // Read intervals
-
-        do
-            Pi.Init<BootstrapWiringPi>()
-
         do 
             printfn "Configuration:"
             printfn "Samples/second: %d" (1000 / timer)
             profile.printValues()
-
-        // Pwm
-        let pwmMinRange = 0
-        let pwmMaxRange = 100
-
-        // i2c configuration
-        let accuracy = 255 // 8 bits
-            
-        // Functions
-        let calcDutyCycle analogValue = (analogValue * float pwmMaxRange) / float accuracy
-
-        // Configure I2C devices
-        let adcAddress = int ConfigurationManager.AppSettings.["AdcAddress"] // run i2cdetect -y 1
-        let adc = Pi.I2C.AddDevice(adcAddress)
-        let audioEnvelopeChannel = 0 // Envelope channel
-
-        // Led to visualize the envelope input from the audio sensor
-        let envelopeLed = 
-            let led = (Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
-            led.PinMode <- GpioPinDriveMode.Output
-            led.StartSoftPwm(pwmMinRange, pwmMaxRange)
-            led
-
-        // Low volume level considered ok to avoid unnecessarily volume increases
-        let lowVolumeLevelConsideredMute = int ConfigurationManager.AppSettings.["LowVolumeLevelConsideredMute"]
 
         let trx = new IRTrxCommands(profile.IRFileName)
 
