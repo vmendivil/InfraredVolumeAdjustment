@@ -1,1 +1,0 @@
-* If volume is low and constant for X period of time, stop logging, usually 4 is the minimum you might get.
