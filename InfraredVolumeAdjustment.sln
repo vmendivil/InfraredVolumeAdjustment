@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Raspberry.VolumeLeveler", "Raspberry.VolumeLeveler\Raspberry.VolumeLeveler.fsproj", "{A65D3E4D-2DEC-4C08-9B27-5CFFADAC881F}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Raspberry.Device", "Raspberry.Device\Raspberry.Device.fsproj", "{AF5DC4ED-161F-4D70-ABEA-F0628B044310}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Raspberry.Device", "Raspberry.Device\Raspberry.Device.fsproj", "{AF5DC4ED-161F-4D70-ABEA-F0628B044310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raspberry.Api", "Raspberry.Api\Raspberry.Api.csproj", "{6CA1B1F9-6DA2-458C-B643-7B9DD2819218}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{AF5DC4ED-161F-4D70-ABEA-F0628B044310}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF5DC4ED-161F-4D70-ABEA-F0628B044310}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF5DC4ED-161F-4D70-ABEA-F0628B044310}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CA1B1F9-6DA2-458C-B643-7B9DD2819218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CA1B1F9-6DA2-458C-B643-7B9DD2819218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CA1B1F9-6DA2-458C-B643-7B9DD2819218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CA1B1F9-6DA2-458C-B643-7B9DD2819218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
