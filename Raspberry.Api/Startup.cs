@@ -52,7 +52,7 @@ namespace Raspberry.Api
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "IRVolumeAdjustment v1");
-                //c.RoutePrefix = string.Empty; // Serve swagger at the root page
+                c.RoutePrefix = string.Empty; // Serve swagger at the root page
             });
 
             app.UseHttpsRedirection();

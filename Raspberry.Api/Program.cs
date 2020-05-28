@@ -20,7 +20,9 @@ namespace Raspberry.Api
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>()
+                        .UseUrls("http://*:5000"); // Line added to ensure it can be accessed outside localhost
+                        ;
                 });
     }
 }
