@@ -39,7 +39,8 @@ let main argv =
             | 8 -> testAudioSensor () |> fun _ -> run false
             | _ -> invalidOption () |> fun _ -> run false
         with ex ->
-                printfn "Exception ocurred: %s\nStackTrace: %s" ex.Message ex.StackTrace
+                printfn "\nException ocurred: %s\n" ex.Message
+                //printfn "StackTrace: %s" ex.StackTrace
                 run false
 
     run false
