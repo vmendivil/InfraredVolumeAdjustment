@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Raspberry.Api.Helpers;
 
 namespace Raspberry.Api
 {
@@ -25,6 +26,10 @@ namespace Raspberry.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            // Register typed AppSettings object
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
 
             // Register Swagger generator
             services.AddSwaggerGen(c =>
