@@ -12,6 +12,21 @@ open Vhmc.Pi.Domain
 open Vhmc.Pi.Common
 
 
+
+[<AutoOpen>]
+module Sinlgeton =
+
+    type Global internal () =
+
+        let mutable audioProfile = AudioProfile.Empty
+        let mutable printAsyncOutput = true
+
+        member val AudioProfile = audioProfile
+        member val PrintAsyncOutput = printAsyncOutput with get, set
+
+    let Global = Global()
+
+
 [<AutoOpen>]
 module private ProcessInitialize =
 
@@ -44,6 +59,7 @@ module private ProcessInitialize =
         let led = (Pi.Gpio.[BcmPin.Gpio05]) :?> GpioPin
         led.PinMode <- GpioPinDriveMode.Output
         led.StartSoftPwm(pwmMinRange, pwmMaxRange)
+        led.SoftPwmValue <- 0
         led
 
 
@@ -62,6 +78,12 @@ module private ProcessHelpers =
 
 [<AutoOpen>]
 module Process =
+
+    type OutputLed () =
+        member __.Led = envelopeLed
+        member this.On () = this.Led.SoftPwmValue <- pwmMaxRange
+        member this.Half () = this.Led.SoftPwmValue <- pwmMaxRange / 2
+        member this.Off () = this.Led.SoftPwmValue <- pwmMinRange
 
     type IRTrxCommands (irCommandsFile) =
         let irTrxPin = (int) BcmPin.Gpio18
@@ -214,9 +236,10 @@ module Process =
                 envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
 
                 let printNext text =
-                    if envelopeCur <> envelopePrev
-                    then printf "\n%s : %d " text envelopeCur
-                    else printf "."
+                    if Global.PrintAsyncOutput then
+                        if envelopeCur <> envelopePrev
+                        then printf "\n%s : %d " text envelopeCur
+                        else printf "."
 
                 try
                     match envelopeCur with

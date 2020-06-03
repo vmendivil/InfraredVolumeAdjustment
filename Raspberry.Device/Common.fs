@@ -4,7 +4,7 @@ open Newtonsoft.Json
 
 
 [<AutoOpen>]
-module Common =
+module CommonFunctions =
     
     type ResultBuilder() =
         member __.Return x = Ok x

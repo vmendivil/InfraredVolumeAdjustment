@@ -149,7 +149,7 @@ module Functions =
         profile.printValues()
 
     let testAudioSensor () =
-        printfn "\nProfile configuration"
+        printfn "\nTest audio sensor"
 
         readConsole "Press Enter to start. Press any key to stop" |> ignore
         AudioSensor().run()
@@ -158,3 +158,27 @@ module Functions =
     let invalidOption () = printfn "Option not valid"  
 
     let exitApplication () = printfn "Exiting..."
+
+    let testOutputLed () =
+        printfn "\nTest output led"
+
+        let led = OutputLed()
+
+        printfn ""
+        printfn "IsInSoftPwmMode: %b" led.Led.IsInSoftPwmMode
+        printfn "BcmPin: %A" led.Led.BcmPin
+        printfn "PhysicalPinNumber: %A" led.Led.PhysicalPinNumber
+        printfn "PinMode: %A" led.Led.PinMode
+        printfn "SoftPwmRange: %A" led.Led.SoftPwmRange
+        printfn "SoftPwmValue: %A" led.Led.SoftPwmValue
+
+        led.Off()
+        printfn ""
+        readConsole "Press Enter to send an On signal..." |> ignore
+        led.On()
+        readConsole "Press Enter to send an Half signal..." |> ignore
+        led.Half()
+        readConsole "Press Enter to send an Off signal..." |> ignore
+        led.Off()
+
+        printfn "\nTest finished"

@@ -1,4 +1,5 @@
 ﻿open Vhmc.Pi.Functions
+open Vhmc.Pi.Test.TestHelpers
 
 
 [<EntryPoint>]
@@ -22,6 +23,7 @@ let main argv =
         printfn "6) Test profile"
         printfn "7) Profile configuration"
         printfn "8) Test audio sensor"
+        printfn "9) Test output led"
         printfn "0) Exit"
         printfn ""
         let option = readConsoleInt "Select an option: "
@@ -37,6 +39,8 @@ let main argv =
             | 6 -> testProfile () |> fun _ -> run false
             | 7 -> profileConfiguration () |> fun _ -> run true
             | 8 -> testAudioSensor () |> fun _ -> run false
+            | 9 -> testOutputLed () |> fun _ -> run false
+            | -1 -> TestAsync().run() |> fun _ -> run false // TODO: Remove, this is just for testing
             | _ -> invalidOption () |> fun _ -> run false
         with ex ->
                 printfn "\nException ocurred: %s\n" ex.Message
