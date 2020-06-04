@@ -276,16 +276,16 @@ module Process =
                 let rec printMenuAndReadKey () =
                     printfn "\n"
                     printfn "Profile: %s" Global.AudioProfile.Name
-                    printfn "Option                         Key                     Current value"
+                    printfn "Option                         Update keys             Current value"
                     printfn "--------------------------------------------------------------------"
                     printfn "Show on/off audio read values  [P]                     %b" Global.PrintAsyncOutput
                     printfn "Stop                           [X]"
-                    printfn "Audio sensor -------------------------------------------------------"
-                    printfn "Change upper volume value      [Up/Down Arrows]        %d" Global.AudioProfile.SoundIdealUpperLimit
-                    printfn "Change lower volume value      [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
-                    printfn "Device volume ------------------------------------------------------"
-                    printfn "Change device max volume       [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
-                    printfn "Change device min volume       [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
+                    printfn "Audio sensor from device -------------------------------------------------------"
+                    printfn "Upper noise limit              [Up/Down Arrows]        %d" Global.AudioProfile.SoundIdealUpperLimit
+                    printfn "Lower noise limit              [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
+                    printfn "IR signals to device ------------------------------------------------------"
+                    printfn "Max volume IR increases        [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
+                    printfn "Min volume IR decreases        [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
                     printfn "--------------------------------------------------------------------"
                     printf "Select an option: "
 
