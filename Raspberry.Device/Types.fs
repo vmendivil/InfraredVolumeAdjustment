@@ -224,6 +224,7 @@ module Process =
         do 
             System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
+        // TODO: Delete this function
         let rec readAudio levelDwCounter levelUpCounter envelopePrev =
             async{
                 Thread.Sleep timer
@@ -243,25 +244,57 @@ module Process =
                     | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
                                         printNext "Up"
                                         if levelDwCounter < Global.AudioProfile.MaxIRDecreasesAllowed
-                                        then
-                                            trx.volumeDown() |> Async.RunSynchronously
-                                            do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
-                                        else
-                                            do! readAudio levelDwCounter levelUpCounter envelopeCur
+                                        then trx.volumeDown() |> Async.RunSynchronously
+                                             do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
+                                        else do! readAudio levelDwCounter levelUpCounter envelopeCur
                     | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
                                         printNext "Dw"
                                         if levelUpCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
-                                        then 
-                                            trx.volumeUp() |> Async.RunSynchronously
-                                            do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
-                                        else
-                                            do! readAudio levelDwCounter levelUpCounter envelopeCur
-                    | x -> 
-                                        printNext "Ok"
+                                        then trx.volumeUp() |> Async.RunSynchronously
+                                             do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
+                                        else do! readAudio levelDwCounter levelUpCounter envelopeCur
+                    | _ ->              printNext "Ok"
                                         do! readAudio levelDwCounter levelUpCounter envelopeCur
                 with ex -> 
                     printfn "Exception during signal processing: %A" ex.Message
                     do! readAudio levelDwCounter levelUpCounter envelopeCur
+            }
+
+        let rec processAudio irCounter envelopePrev =
+            async{
+                Thread.Sleep timer
+            
+                let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
+
+                envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
+
+                let printNext text =
+                    if Global.PrintAsyncOutput then
+                        if envelopeCur <> envelopePrev
+                        then printf "\n%s : %d " text envelopeCur
+                        else printf "."
+
+                try
+                    match envelopeCur with
+                    | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
+                                        if irCounter > (Global.AudioProfile.MaxIRDecreasesAllowed * -1)
+                                        then printNext "Up>"
+                                             trx.volumeDown() |> Async.RunSynchronously
+                                             do! processAudio (irCounter - 1) envelopeCur
+                                        else printNext "Up|"
+                                             do! processAudio irCounter envelopeCur
+                    | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+                                        if irCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
+                                        then printNext "Dw>"
+                                             trx.volumeUp() |> Async.RunSynchronously
+                                             do! processAudio (irCounter + 1) envelopeCur
+                                        else printNext "Dw|"
+                                             do! processAudio irCounter envelopeCur
+                    | _ ->              printNext "Ok|"
+                                        do! processAudio irCounter envelopeCur
+                with ex -> 
+                    printfn "Exception during signal processing: %A" ex.Message
+                    do! processAudio 0 envelopeCur
             }
 
         member __.run () =
@@ -312,7 +345,8 @@ module Process =
                     | _                         -> printfn "Invalid option";                                                                            printMenuAndReadKey()
 
                 use cancellationSource = new CancellationTokenSource()
-                Async.Start((readAudio 0 0 -1), cancellationSource.Token)
+                //Async.Start((readAudio 0 0 -1), cancellationSource.Token)
+                Async.Start((processAudio 0 0), cancellationSource.Token)
 
                 printMenuAndReadKey()
                 cancellationSource.Cancel()

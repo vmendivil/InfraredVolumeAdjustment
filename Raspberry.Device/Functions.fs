@@ -53,7 +53,7 @@ module Functions =
         printfn ""
         printfn "Starting process" |> ignore
         IrAudioLeveler(profile).run()
-        printfn "Process stoped"
+        printfn "Process stopped"
     
     let createProfile () =
         printfn "\nCreate profile"
@@ -160,7 +160,7 @@ module Functions =
 
         readConsole "Press Enter to start. Press any key to stop" |> ignore
         AudioSensor().run()
-        printfn "Process stoped"
+        printfn "\nProcess stopped"
 
     let invalidOption () = printfn "Option not valid"  
 
