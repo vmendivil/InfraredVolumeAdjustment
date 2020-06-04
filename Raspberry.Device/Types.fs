@@ -1,7 +1,6 @@
 ﻿namespace Vhmc.Pi.Types
 
 open Unosquare.RaspberryIO.Abstractions
-open System.Diagnostics
 open System
 open System.IO
 open System.Configuration
@@ -19,10 +18,10 @@ module Sinlgeton =
     type Global internal () =
 
         let mutable audioProfile = AudioProfile.Empty
-        let mutable printAsyncOutput = true
+        let mutable printAsyncOutput = false
 
-        member val AudioProfile = audioProfile
-        member val PrintAsyncOutput = printAsyncOutput with get, set
+        member val AudioProfile             = audioProfile              with get, set
+        member val PrintAsyncOutput         = printAsyncOutput          with get, set
 
     let Global = Global()
 
@@ -64,19 +63,6 @@ module private ProcessInitialize =
 
 
 [<AutoOpen>]
-module private ProcessHelpers =
-
-    let sendCommand command = 
-        async{
-            Process.Start("sudo", command) |> fun x -> x.WaitForExit()
-            return ()
-        }
-    let startDaemon () = "pigpiod" |> sendCommand |> Async.RunSynchronously // Start pigpio daemon
-    let stopDaemon () = "killall pigpiod" |> sendCommand |> Async.RunSynchronously // Stop pigpio daemon
-    let profilesFile = sprintf @"IR_AudioProfiles.json"
-
-
-[<AutoOpen>]
 module Process =
 
     type OutputLed () =
@@ -84,19 +70,26 @@ module Process =
         member this.On () = this.Led.SoftPwmValue <- pwmMaxRange
         member this.Half () = this.Led.SoftPwmValue <- pwmMaxRange / 2
         member this.Off () = this.Led.SoftPwmValue <- pwmMinRange
+        member this.Blink times =
+            async{
+                let sleep () = Thread.Sleep(200)
+                this.Off()
+                for _ in [1..times] do
+                    this.On()
+                    sleep()
+                    this.Off()
+                    sleep()
+            } |> Async.Start
 
     type IRTrxCommands (irCommandsFile) =
         let irTrxPin = (int) BcmPin.Gpio18
         let irCommand pin irConfigFile instruction = sprintf "python irrp.py -p -g%d -f%s %s" pin irConfigFile instruction
-
-        do 
-            startDaemon()
         
         member __.volumeUp () = sendCommand <| (irCommand irTrxPin irCommandsFile "VolumeUp")
         member __.volumeDown () = sendCommand <| (irCommand irTrxPin irCommandsFile "VolumeDown")
 
         interface IDisposable with
-            member __.Dispose () = stopDaemon()
+            member __.Dispose () = ()
 
     type IRRecCommands (profileName: string) =
         let irRecPin = (int) BcmPin.Gpio17
@@ -104,9 +97,7 @@ module Process =
 
         member __.startRecording () =
             let outputFile = sprintf "%s" profileName
-            startDaemon()
             sendCommand <| irCommand irRecPin outputFile |> Async.RunSynchronously
-            stopDaemon()
 
     type Profiles () =
 
@@ -176,7 +167,7 @@ module Process =
 
         let destroy () =
             printfn "Destroyed..."
-            Thread.Sleep(1)
+            Thread.Sleep(10)
             envelopeLed.SoftPwmValue <- 0
 
         do 
@@ -206,22 +197,28 @@ module Process =
                 Console.ReadKey() |> ignore
                 cancellationSource.Cancel()
 
+                Thread.Sleep(1000)
+                OutputLed().Off()
+
             with ex -> printfn "%A" ex
                        destroy()
 
-    type IrAudioLeveler (profile: AudioProfile) =
+    type IrAudioLeveler (audioProfile: AudioProfile) =
+
+        do
+            Global.AudioProfile <- audioProfile
 
         do 
-            printfn "Configuration:"
             printfn "Samples/second: %d" (1000 / timer)
-            profile.printValues()
+            Global.AudioProfile.printValues()
 
-        let trx = new IRTrxCommands(profile.IRFileName)
+        let trx = new IRTrxCommands(Global.AudioProfile.IRFileName)
 
         let destroy () =
             printfn "Destroyed..."
-            Thread.Sleep(1)
             trx :> IDisposable |> fun x -> x.Dispose()
+            Thread.Sleep(100)
+            Global.AudioProfile <- AudioProfile.Empty
             envelopeLed.SoftPwmValue <- 0
 
         do 
@@ -243,17 +240,17 @@ module Process =
 
                 try
                     match envelopeCur with
-                    | x when x > profile.SoundIdealUpperLimit -> 
+                    | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
                                         printNext "Up"
-                                        if levelDwCounter < profile.MaxIRDecreasesAllowed
+                                        if levelDwCounter < Global.AudioProfile.MaxIRDecreasesAllowed
                                         then
                                             trx.volumeDown() |> Async.RunSynchronously
                                             do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
                                         else
                                             do! readAudio levelDwCounter levelUpCounter envelopeCur
-                    | x when x < profile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+                    | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
                                         printNext "Dw"
-                                        if levelUpCounter < profile.MaxIRIncreasesAllowed 
+                                        if levelUpCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
                                         then 
                                             trx.volumeUp() |> Async.RunSynchronously
                                             do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
@@ -268,12 +265,62 @@ module Process =
             }
 
         member __.run () =
-            try 
+            try
+                printfn ""
+                printfn "Set device to recommended initial volume: %d" Global.AudioProfile.DeviceIdealInitialAudioLevel
+                printfn "Press Enter to start..."
+                Console.ReadLine() |> ignore
+                printfn ""
+                printfn "Process started"
+
+                let rec printMenuAndReadKey () =
+                    printfn "\n"
+                    printfn "Profile: %s" Global.AudioProfile.Name
+                    printfn "Option                         Key                     Current value"
+                    printfn "--------------------------------------------------------------------"
+                    printfn "Show on/off audio read values  [P]                     %b" Global.PrintAsyncOutput
+                    printfn "Stop                           [X]"
+                    printfn "Audio sensor -------------------------------------------------------"
+                    printfn "Change upper volume value      [Up/Down Arrows]        %d" Global.AudioProfile.SoundIdealUpperLimit
+                    printfn "Change lower volume value      [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
+                    printfn "Device volume ------------------------------------------------------"
+                    printfn "Change device max volume       [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
+                    printfn "Change device min volume       [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
+                    printfn "--------------------------------------------------------------------"
+                    printf "Select an option: "
+
+                    let keyInfo = Console.ReadKey(true)
+                    printfn "%c" keyInfo.KeyChar
+
+                    let profile = Global.AudioProfile
+
+                    match keyInfo.Key with
+                    // General values
+                    | ConsoleKey.X              -> () // Exit
+                    | ConsoleKey.P              -> Global.PrintAsyncOutput      <- Global.PrintAsyncOutput |> not;                                      printMenuAndReadKey()
+                    // Sound detector levels
+                    | ConsoleKey.UpArrow        -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit + 1 };     printMenuAndReadKey()
+                    | ConsoleKey.DownArrow      -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit - 1 };     printMenuAndReadKey()
+                    | ConsoleKey.RightArrow     -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit + 1 };   printMenuAndReadKey()
+                    | ConsoleKey.LeftArrow      -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit - 1 };   printMenuAndReadKey()
+                    // Device audio levels
+                    | ConsoleKey.W              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed + 1 };   printMenuAndReadKey()
+                    | ConsoleKey.S              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed - 1 };   printMenuAndReadKey()
+                    | ConsoleKey.D              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed + 1 };   printMenuAndReadKey()
+                    | ConsoleKey.A              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed - 1 };   printMenuAndReadKey()
+                    // Default value
+                    | _                         -> printfn "Invalid option";                                                                            printMenuAndReadKey()
+
                 use cancellationSource = new CancellationTokenSource()
                 Async.Start((readAudio 0 0 -1), cancellationSource.Token)
 
-                Console.ReadKey() |> ignore
+                printMenuAndReadKey()
                 cancellationSource.Cancel()
+
+                printfn ""
+                printfn "Turning off sensors"
+                Thread.Sleep(1000)
+                OutputLed().Off()
 
             with ex -> printfn "%A" ex
                        destroy()

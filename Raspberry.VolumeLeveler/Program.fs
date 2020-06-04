@@ -1,5 +1,6 @@
 ﻿open Vhmc.Pi.Functions
 open Vhmc.Pi.Test.TestHelpers
+open Vhmc.Pi.Common
 
 
 [<EntryPoint>]
@@ -30,6 +31,7 @@ let main argv =
 
         try
             match option with
+            | -1 -> TestAsync().run() |> fun _ -> run false // TODO: Remove, this is just for testing
             | 0 -> exitApplication ()
             | 1 -> startIRAudioLeveler () |> fun _ -> run false
             | 2 -> createProfile () |> fun _ -> run false
@@ -40,14 +42,15 @@ let main argv =
             | 7 -> profileConfiguration () |> fun _ -> run true
             | 8 -> testAudioSensor () |> fun _ -> run false
             | 9 -> testOutputLed () |> fun _ -> run false
-            | -1 -> TestAsync().run() |> fun _ -> run false // TODO: Remove, this is just for testing
             | _ -> invalidOption () |> fun _ -> run false
         with ex ->
                 printfn "\nException ocurred: %s\n" ex.Message
                 //printfn "StackTrace: %s" ex.StackTrace
                 run false
 
+    startDaemon()
     run false
+    stopDaemon()
 
     printfn "Finished"
 

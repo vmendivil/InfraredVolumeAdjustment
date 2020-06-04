@@ -6,7 +6,7 @@ Set-Location Raspberry.VolumeLeveler
 #Remove-Item $PublishPath -r
 dotnet build -c Debug
 #dotnet publish --force -c Debug
-ssh pi@192.168.1.48 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/IRAudioLeveler/Console/*"
+#ssh pi@192.168.1.48 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/IRAudioLeveler/Console/*"
 scp -i $SshPrivateKey -r $PublishPath pi@192.168.1.48:./Vhmc/App/IRAudioLeveler/Console
 Set-Location ..
 
@@ -15,7 +15,7 @@ Set-Location Raspberry.Api
 #Remove-Item $PublishPath -r
 dotnet build -c Debug
 #dotnet publish --force -c Debug
-ssh pi@192.168.1.48 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/IRAudioLeveler/Api/*"
+#ssh pi@192.168.1.48 -i $SshPrivateKey "sudo rm -r ./Vhmc/App/IRAudioLeveler/Api/*"
 scp -i $SshPrivateKey -r $PublishPath pi@192.168.1.48:./Vhmc/App/IRAudioLeveler/Api
 Set-Location ..
 

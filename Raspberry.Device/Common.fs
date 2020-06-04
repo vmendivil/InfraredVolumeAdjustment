@@ -1,6 +1,20 @@
 ﻿namespace Vhmc.Pi.Common
 
 open Newtonsoft.Json
+open System.Diagnostics
+
+
+[<AutoOpen>]
+module PiGpioDaemon =
+
+    let sendCommand command = 
+        async{
+            Process.Start("sudo", command) |> fun x -> x.WaitForExit()
+            return ()
+        }
+    let startDaemon () = "pigpiod" |> sendCommand |> Async.RunSynchronously // Start pigpio daemon
+    let stopDaemon () = "killall pigpiod" |> sendCommand |> Async.RunSynchronously // Stop pigpio daemon
+    let profilesFile = sprintf @"IR_AudioProfiles.json"
 
 
 [<AutoOpen>]

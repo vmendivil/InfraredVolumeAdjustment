@@ -50,21 +50,28 @@ module Functions =
         let profileName = readConsole "Profile name: "
         let profile = getOrFailProfile profileName
 
-        readConsole "Press Enter to start. Press any key to stop" |> ignore
+        printfn ""
+        printfn "Starting process" |> ignore
         IrAudioLeveler(profile).run()
         printfn "Process stoped"
     
     let createProfile () =
         printfn "\nCreate profile"
+        printfn ""
         let profileName = readConsole "Profile name: "
         let irFileName = buildIRFileName profileName
-        let deviceIdealInitialAudioLevel = readConsoleInt "Device ideal initial audio level: "
+        printfn ""
+        printfn ">> Audio sensor configuration"
         let soundIdealUpperLimit = readConsoleInt "Sound ideal upper limit: "
         let soundIdealBottomLimit = readConsoleInt "Sound ideal bottom limit: "
+        printfn ""
+        printfn ">> Device configuration"
+        let deviceIdealInitialAudioLevel = readConsoleInt "Device initial audio level: "
         let maxIRIncreasesAllowed = readConsoleInt "Max IR volume increases allowed: "
         let maxIRDecreasesAllowed = readConsoleInt "Max IR volume decreases allowed: "
 
-        printfn "\nTake your IR remote controller and follow instructions to record IR signals."
+        printfn ""
+        printfn "Take your IR remote controller and follow instructions to record IR signals."
         readConsole "Press Enter when you are ready to start recording..." |> ignore
         printfn ""
 
@@ -180,5 +187,7 @@ module Functions =
         led.Half()
         readConsole "Press Enter to send an Off signal..." |> ignore
         led.Off()
+        readConsole "Press Enter to blink 5 times" |> ignore
+        led.Blink 5
 
         printfn "\nTest finished"
