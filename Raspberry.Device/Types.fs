@@ -19,9 +19,11 @@ module Sinlgeton =
 
         let mutable audioProfile = AudioProfile.Empty
         let mutable printAsyncOutput = false
+        let mutable printAsyncAllLectures = false
 
         member val AudioProfile             = audioProfile              with get, set
         member val PrintAsyncOutput         = printAsyncOutput          with get, set
+        member val PrintAsyncAllLectures    = printAsyncAllLectures     with get, set
 
     let Global = Global()
 
@@ -269,10 +271,14 @@ module Process =
                 envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
 
                 let printNext text =
+
                     if Global.PrintAsyncOutput then
                         if envelopeCur <> envelopePrev
                         then printf "\n%s : %d " text envelopeCur
                         else printf "."
+
+                    if Global.PrintAsyncAllLectures then
+                        printf "\n%s : %2d\t %d" text envelopeCur irCounter
 
                 try
                     match envelopeCur with
@@ -309,16 +315,17 @@ module Process =
                 let rec printMenuAndReadKey () =
                     printfn "\n"
                     printfn "Profile: %s" Global.AudioProfile.Name
-                    printfn "Option                         Update keys             Current value"
+                    printfn "Option                                     Update keys             Current value"
                     printfn "--------------------------------------------------------------------"
-                    printfn "Show on/off audio read values  [P]                     %b" Global.PrintAsyncOutput
-                    printfn "Stop                           [X]"
+                    printfn "Show on/off audio read values              [P]                     %b" Global.PrintAsyncOutput
+                    printfn "Show on/off audio read values detailed     [L]                     %b" Global.PrintAsyncAllLectures
+                    printfn "Stop                                       [X]"
                     printfn "Audio sensor from device -------------------------------------------------------"
-                    printfn "Upper noise limit              [Up/Down Arrows]        %d" Global.AudioProfile.SoundIdealUpperLimit
-                    printfn "Lower noise limit              [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
+                    printfn "Upper noise limit                          [Up/Down Arrows]        %d" Global.AudioProfile.SoundIdealUpperLimit
+                    printfn "Lower noise limit                          [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
                     printfn "IR signals to device ------------------------------------------------------"
-                    printfn "Max volume IR increases        [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
-                    printfn "Min volume IR decreases        [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
+                    printfn "Max volume IR increases                    [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
+                    printfn "Min volume IR decreases                    [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
                     printfn "--------------------------------------------------------------------"
                     printf "Select an option: "
 
@@ -330,19 +337,20 @@ module Process =
                     match keyInfo.Key with
                     // General values
                     | ConsoleKey.X              -> () // Exit
-                    | ConsoleKey.P              -> Global.PrintAsyncOutput      <- Global.PrintAsyncOutput |> not;                                      printMenuAndReadKey()
+                    | ConsoleKey.P              -> Global.PrintAsyncOutput      <- Global.PrintAsyncOutput |> not;      Global.PrintAsyncAllLectures <- false;  printMenuAndReadKey()
+                    | ConsoleKey.L              -> Global.PrintAsyncAllLectures <- Global.PrintAsyncAllLectures |> not; Global.PrintAsyncOutput      <- false;  printMenuAndReadKey()
                     // Sound detector levels
-                    | ConsoleKey.UpArrow        -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit + 1 };     printMenuAndReadKey()
-                    | ConsoleKey.DownArrow      -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit - 1 };     printMenuAndReadKey()
-                    | ConsoleKey.RightArrow     -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit + 1 };   printMenuAndReadKey()
-                    | ConsoleKey.LeftArrow      -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit - 1 };   printMenuAndReadKey()
+                    | ConsoleKey.UpArrow        -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit + 1 };             printMenuAndReadKey()
+                    | ConsoleKey.DownArrow      -> Global.AudioProfile <- { profile with SoundIdealUpperLimit = profile.SoundIdealUpperLimit - 1 };             printMenuAndReadKey()
+                    | ConsoleKey.RightArrow     -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit + 1 };           printMenuAndReadKey()
+                    | ConsoleKey.LeftArrow      -> Global.AudioProfile <- { profile with SoundIdealBottomLimit = profile.SoundIdealBottomLimit - 1 };           printMenuAndReadKey()
                     // Device audio levels
-                    | ConsoleKey.W              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed + 1 };   printMenuAndReadKey()
-                    | ConsoleKey.S              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed - 1 };   printMenuAndReadKey()
-                    | ConsoleKey.D              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed + 1 };   printMenuAndReadKey()
-                    | ConsoleKey.A              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed - 1 };   printMenuAndReadKey()
+                    | ConsoleKey.W              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed + 1 };           printMenuAndReadKey()
+                    | ConsoleKey.S              -> Global.AudioProfile <- { profile with MaxIRIncreasesAllowed = profile.MaxIRIncreasesAllowed - 1 };           printMenuAndReadKey()
+                    | ConsoleKey.D              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed + 1 };           printMenuAndReadKey()
+                    | ConsoleKey.A              -> Global.AudioProfile <- { profile with MaxIRDecreasesAllowed = profile.MaxIRDecreasesAllowed - 1 };           printMenuAndReadKey()
                     // Default value
-                    | _                         -> printfn "Invalid option";                                                                            printMenuAndReadKey()
+                    | _                         -> printfn "Invalid option";                                                                                    printMenuAndReadKey()
 
                 use cancellationSource = new CancellationTokenSource()
                 //Async.Start((readAudio 0 0 -1), cancellationSource.Token)
