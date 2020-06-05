@@ -274,29 +274,29 @@ module Process =
 
                     if Global.PrintAsyncOutput then
                         if envelopeCur <> envelopePrev
-                        then printf "\n%s : %d " text envelopeCur
-                        else printf "."
+                        then printf "\n%s   Rx: %3d   Tx: %d" text envelopeCur irCounter
+                        else printf ".%d" irCounter
 
                     if Global.PrintAsyncAllLectures then
-                        printf "\n%s : %2d\t %d" text envelopeCur irCounter
+                        printf "\n%s   Rx: %3d   Tx: %d" text envelopeCur irCounter
 
                 try
                     match envelopeCur with
                     | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
                                         if irCounter > (Global.AudioProfile.MaxIRDecreasesAllowed * -1)
-                                        then printNext "Up>"
+                                        then printNext "Up  <"
                                              trx.volumeDown() |> Async.RunSynchronously
                                              do! processAudio (irCounter - 1) envelopeCur
-                                        else printNext "Up|"
+                                        else printNext "Up  |"
                                              do! processAudio irCounter envelopeCur
                     | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
                                         if irCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
-                                        then printNext "Dw>"
+                                        then printNext "Dw  >"
                                              trx.volumeUp() |> Async.RunSynchronously
                                              do! processAudio (irCounter + 1) envelopeCur
-                                        else printNext "Dw|"
+                                        else printNext "Dw  |"
                                              do! processAudio irCounter envelopeCur
-                    | _ ->              printNext "Ok|"
+                    | _ ->              printNext "Ok  |"
                                         do! processAudio irCounter envelopeCur
                 with ex -> 
                     printfn "Exception during signal processing: %A" ex.Message

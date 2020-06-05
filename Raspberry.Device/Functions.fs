@@ -144,6 +144,32 @@ module Functions =
 
         printfn "\nTest finished"
 
+    let manualVolume () =
+        printfn "\nManual volume"
+        let profileName = readConsole "Profile name: "
+        
+        let profile =
+            match profiles.getProfile profileName with
+            | Ok profile -> profile
+            | Error x -> failwithf "%s" x
+        
+        use trx = new IRTrxCommands(profile.IRFileName)
+
+        printfn "Use Arrows Up/Down and Enter to finish"
+
+        let rec readKey () =
+            let keyInfo = Console.ReadKey(true)
+
+            match keyInfo.Key with
+            | ConsoleKey.UpArrow -> printfn "Up"; trx.volumeUp() |> Async.RunSynchronously; readKey()
+            | ConsoleKey.DownArrow -> printfn "Dw"; trx.volumeDown() |> Async.RunSynchronously; readKey()
+            | ConsoleKey.Enter -> ()
+            | _ -> printfn "Invalid option, try again: "
+
+        readKey()
+
+        printfn "\nTest finished"
+
     let profileConfiguration () =
         printfn "\nProfile configuration"
         let profileName = readConsole "Profile name: "

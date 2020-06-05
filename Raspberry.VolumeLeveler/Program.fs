@@ -21,10 +21,11 @@ let main argv =
         printfn "3) List all profiles"
         printfn "4) Delete profile"
         printfn "5) Update profile"
-        printfn "6) Test profile"
+        printfn "6) Test IR transmitter"
         printfn "7) Profile configuration"
         printfn "8) Test audio sensor"
         printfn "9) Test output led"
+        printfn "10) Manual volume control"
         printfn "0) Exit"
         printfn ""
         let option = readConsoleInt "Select an option: "
@@ -42,6 +43,7 @@ let main argv =
             | 7 -> profileConfiguration () |> fun _ -> run true
             | 8 -> testAudioSensor () |> fun _ -> run false
             | 9 -> testOutputLed () |> fun _ -> run false
+            | 10 -> manualVolume () |> fun _ -> run false
             | _ -> invalidOption () |> fun _ -> run false
         with ex ->
                 printfn "\nException ocurred: %s\n" ex.Message
