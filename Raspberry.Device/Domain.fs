@@ -1,4 +1,4 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Domain
+﻿namespace Vhmc.Pi.Domain
 
 [<AutoOpen>]
 module Domain =
@@ -26,7 +26,7 @@ module Domain =
                 }
             member this.printValues () =
                 printfn ""
-                printfn "Profile values:"
+                printfn "Profile setup"
                 printfn "Name: %s" this.Name
                 printfn "IRFileName: %s" this.IRFileName
                 printfn "DeviceIdealInitialAudioLevel: %d" this.DeviceIdealInitialAudioLevel

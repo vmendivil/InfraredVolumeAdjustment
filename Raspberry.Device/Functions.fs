@@ -1,8 +1,8 @@
-﻿namespace Vhmc.Pi.VolumeLeveler.Functions
+﻿namespace Vhmc.Pi.Functions
 
 open System
-open Vhmc.Pi.VolumeLeveler.Domain
-open Vhmc.Pi.VolumeLeveler.Types
+open Vhmc.Pi.Domain
+open Vhmc.Pi.Types
 
 
 [<AutoOpen>]
@@ -50,21 +50,28 @@ module Functions =
         let profileName = readConsole "Profile name: "
         let profile = getOrFailProfile profileName
 
-        readConsole "Press Enter to start. Press any key to stop" |> ignore
+        printfn ""
+        printfn "Starting process" |> ignore
         IrAudioLeveler(profile).run()
-        printfn "Process stoped"
+        printfn "Process stopped"
     
     let createProfile () =
         printfn "\nCreate profile"
+        printfn ""
         let profileName = readConsole "Profile name: "
         let irFileName = buildIRFileName profileName
-        let deviceIdealInitialAudioLevel = readConsoleInt "Device ideal initial audio level: "
+        printfn ""
+        printfn ">> Audio sensor configuration"
         let soundIdealUpperLimit = readConsoleInt "Sound ideal upper limit: "
         let soundIdealBottomLimit = readConsoleInt "Sound ideal bottom limit: "
+        printfn ""
+        printfn ">> Device configuration"
+        let deviceIdealInitialAudioLevel = readConsoleInt "Device initial audio level: "
         let maxIRIncreasesAllowed = readConsoleInt "Max IR volume increases allowed: "
         let maxIRDecreasesAllowed = readConsoleInt "Max IR volume decreases allowed: "
 
-        printfn "\nTake your IR remote controller and follow instructions to record IR signals."
+        printfn ""
+        printfn "Take your IR remote controller and follow instructions to record IR signals."
         readConsole "Press Enter when you are ready to start recording..." |> ignore
         printfn ""
 
@@ -137,6 +144,32 @@ module Functions =
 
         printfn "\nTest finished"
 
+    let manualVolume () =
+        printfn "\nManual volume"
+        let profileName = readConsole "Profile name: "
+        
+        let profile =
+            match profiles.getProfile profileName with
+            | Ok profile -> profile
+            | Error x -> failwithf "%s" x
+        
+        use trx = new IRTrxCommands(profile.IRFileName)
+
+        printfn "Use Arrows Up/Down and Enter to finish"
+
+        let rec readKey () =
+            let keyInfo = Console.ReadKey(true)
+
+            match keyInfo.Key with
+            | ConsoleKey.UpArrow -> printfn "Up"; trx.volumeUp() |> Async.RunSynchronously; readKey()
+            | ConsoleKey.DownArrow -> printfn "Dw"; trx.volumeDown() |> Async.RunSynchronously; readKey()
+            | ConsoleKey.Enter -> ()
+            | _ -> printfn "Invalid option, try again: "
+
+        readKey()
+
+        printfn "\nTest finished"
+
     let profileConfiguration () =
         printfn "\nProfile configuration"
         let profileName = readConsole "Profile name: "
@@ -149,12 +182,38 @@ module Functions =
         profile.printValues()
 
     let testAudioSensor () =
-        printfn "\nProfile configuration"
+        printfn "\nTest audio sensor"
 
         readConsole "Press Enter to start. Press any key to stop" |> ignore
         AudioSensor().run()
-        printfn "Process stoped"
+        printfn "\nProcess stopped"
 
     let invalidOption () = printfn "Option not valid"  
 
     let exitApplication () = printfn "Exiting..."
+
+    let testOutputLed () =
+        printfn "\nTest output led"
+
+        let led = OutputLed()
+
+        printfn ""
+        printfn "IsInSoftPwmMode: %b" led.Led.IsInSoftPwmMode
+        printfn "BcmPin: %A" led.Led.BcmPin
+        printfn "PhysicalPinNumber: %A" led.Led.PhysicalPinNumber
+        printfn "PinMode: %A" led.Led.PinMode
+        printfn "SoftPwmRange: %A" led.Led.SoftPwmRange
+        printfn "SoftPwmValue: %A" led.Led.SoftPwmValue
+
+        led.Off()
+        printfn ""
+        readConsole "Press Enter to send an On signal..." |> ignore
+        led.On()
+        readConsole "Press Enter to send an Half signal..." |> ignore
+        led.Half()
+        readConsole "Press Enter to send an Off signal..." |> ignore
+        led.Off()
+        readConsole "Press Enter to blink 5 times" |> ignore
+        led.Blink 5
+
+        printfn "\nTest finished"
