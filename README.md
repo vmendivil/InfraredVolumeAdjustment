@@ -68,7 +68,8 @@ Restart Raspberry.
 	2) Send IR signals from raspberry and IR transmitter to device.
 	3) Read and process data from sound detector
 	4) Define rules about how program will work to process sound levels from device and send IR signals to device.
-	5) Program to level audio levels.
+	5) Configuration of profiles and audio levels.
+	6) Manual adjustments of level on the fly.
 
 ### Code and Libraries
 
@@ -84,9 +85,9 @@ F# uses Unosquare.RaspberryIO NuGet package. Python uses pigpio library.
 
 Follow instructions: http://abyz.me.uk/rpi/pigpio/download.html
 
-### How to record IR signals
+### How to record IR signals from console
 
-	1) Connect the IR receiver to Raspberry.
+	1) Connect IR receiver to Raspberry.
 	2) Download python pigpio script to record and reproduce IR signals.
 		a. Link: http://abyz.me.uk/rpi/pigpio/examples.html#Python%20code
 			i. IR Record and Playback: http://abyz.me.uk/rpi/pigpio/code/irrp_py.zip
@@ -98,14 +99,14 @@ Follow instructions: http://abyz.me.uk/rpi/pigpio/download.html
 
 To get help on available commands and options, run command: sudo python irrp.py -h
 
-### How to playback IR signals
+### How to playback IR signals from console
 
 	1) Connect the IR transmitter to Raspberry
 	2) Download python pigpio script to record and reproduce IR signals.
 		a. Link: http://abyz.me.uk/rpi/pigpio/examples.html#Python%20code
 			i. IR Record and Playback: http://abyz.me.uk/rpi/pigpio/code/irrp_py.zip
 	3) Start pigpio daemon: sudo pigpiod
-	4) To playback the GPIO connected to the IR transmitter, the file containing the recorded codes, and the codes to be played back are given. 
+	4) To playback IR signals through the IR transmitter, we need to provide the file generated while recording IR signals and the commands that we want to reproduce.
 		a. Command: sudo python irrp.py -p -g18 -fir-codes 2 3 4
 	5) Stop pigpio daemon: sudo killall pigpiod
 
@@ -115,18 +116,16 @@ Sound detector functionality is explanied in the below link. We are using the En
 
 https://learn.sparkfun.com/tutorials/sound-detector-hookup-guide
 
-### Rules on how the program Volume Leveler program should work
+### Rules on how the program Volume Leveler program works
 
-	1) Program should be written in F#, why? Just for fun.
-	2) Program should call functions inside python script to send IR signals.
-	3) A range should be specified where audio level is acceptable.
+	1) Program will be written in F#, why? Just for fun.
+	2) Program will call functions inside python script to record/send IR signals.
+	3) A range should be configured to determine acceptable audio levels.
 		a. If above that range, reduce the volume.
 		b. If below that range, increase the volume.
-	4) A maximum and minimum amount of allowed IR signals to increase or decrease the volume must be set to prevent the program going below/above those values.
-	5) Should be easy to define what IR config file will be used to generate the IR signals.
-	6) Program should read audio levels at a configured rate per second.
-
-Program is kept as simple as possible, initially only focused on doing the job: reading audio, defining its level and increase/reduce audio levels by sending IR signals.
+	4) A maximum/minimum threshold of allowed IR signals must be configured to prevent indefinitely increase/decrease of volume.
+	5) Should provide the ability to select what profile/configuration will be used by the IR transmitter.
+	6) A rate per second read frequency should be configured for audio lectures.
 
 ### How to run the program
 
@@ -135,17 +134,19 @@ The program follows some assumptions:
 	a) You have python installed
 	b) You have pigpio python package installed
 	c) You have dotNet installed
-	d) You can properly ssh to your Raspberry
+	d) You can properly ssh into your Raspberry
 
-#### Deploy app
+API functionality will be added in the future.
+
+#### Deploy app from outside the Raspberry
 
 	1) Clone repo
-	2) Open PowerShell and run Deploy.ps1 script
+	2) Open PowerShell and modify/run Deploy.ps1 script
 		a. Script assumes you can ssh to your Raspberry.
 		b. $SshPrivateKey must be the path to your private key
-		c. In lines 8 and 9, update the IP and the path where you will be deploying your code
+		c. Update the IP and path where you will be deploying your code
 
-#### Run the app
+#### Run console app
 
 	1) Ssh to your raspberry and navigate to the folder where the code was deployed
 	2) Run program: dotnet AutomaticInfraredAudioLeveler.dll

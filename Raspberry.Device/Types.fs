@@ -227,40 +227,40 @@ module Process =
             System.Console.CancelKeyPress |> Event.add (fun _ -> destroy()) // Ctrl+C to finish application
 
         // TODO: Delete this function
-        let rec readAudio levelDwCounter levelUpCounter envelopePrev =
-            async{
-                Thread.Sleep timer
-            
-                let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
-
-                envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
-
-                let printNext text =
-                    if Global.PrintAsyncOutput then
-                        if envelopeCur <> envelopePrev
-                        then printf "\n%s : %d " text envelopeCur
-                        else printf "."
-
-                try
-                    match envelopeCur with
-                    | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
-                                        printNext "Up"
-                                        if levelDwCounter < Global.AudioProfile.MaxIRDecreasesAllowed
-                                        then trx.volumeDown() |> Async.RunSynchronously
-                                             do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
-                                        else do! readAudio levelDwCounter levelUpCounter envelopeCur
-                    | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
-                                        printNext "Dw"
-                                        if levelUpCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
-                                        then trx.volumeUp() |> Async.RunSynchronously
-                                             do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
-                                        else do! readAudio levelDwCounter levelUpCounter envelopeCur
-                    | _ ->              printNext "Ok"
-                                        do! readAudio levelDwCounter levelUpCounter envelopeCur
-                with ex -> 
-                    printfn "Exception during signal processing: %A" ex.Message
-                    do! readAudio levelDwCounter levelUpCounter envelopeCur
-            }
+        //let rec readAudio levelDwCounter levelUpCounter envelopePrev =
+        //    async{
+        //        Thread.Sleep timer
+        //    
+        //        let envelopeCur = int <| adc.ReadAddressByte audioEnvelopeChannel
+        //
+        //        envelopeLed.SoftPwmValue <- int (calcDutyCycle (float envelopeCur))
+        //
+        //        let printNext text =
+        //            if Global.PrintAsyncOutput then
+        //                if envelopeCur <> envelopePrev
+        //                then printf "\n%s : %d " text envelopeCur
+        //                else printf "."
+        //
+        //        try
+        //            match envelopeCur with
+        //            | x when x > Global.AudioProfile.SoundIdealUpperLimit -> 
+        //                                printNext "Up"
+        //                                if levelDwCounter < Global.AudioProfile.MaxIRDecreasesAllowed
+        //                                then trx.volumeDown() |> Async.RunSynchronously
+        //                                     do! readAudio (levelDwCounter + 1) (levelUpCounter - 1) envelopeCur
+        //                                else do! readAudio levelDwCounter levelUpCounter envelopeCur
+        //            | x when x < Global.AudioProfile.SoundIdealBottomLimit && x > lowVolumeLevelConsideredMute -> 
+        //                                printNext "Dw"
+        //                                if levelUpCounter < Global.AudioProfile.MaxIRIncreasesAllowed 
+        //                                then trx.volumeUp() |> Async.RunSynchronously
+        //                                     do! readAudio (levelDwCounter - 1) (levelUpCounter + 1) envelopeCur
+        //                                else do! readAudio levelDwCounter levelUpCounter envelopeCur
+        //            | _ ->              printNext "Ok"
+        //                                do! readAudio levelDwCounter levelUpCounter envelopeCur
+        //        with ex -> 
+        //            printfn "Exception during signal processing: %A" ex.Message
+        //            do! readAudio levelDwCounter levelUpCounter envelopeCur
+        //    }
 
         let rec processAudio irCounter envelopePrev =
             async{
@@ -315,6 +315,7 @@ module Process =
                 let rec printMenuAndReadKey () =
                     printfn "\n"
                     printfn "Profile: %s" Global.AudioProfile.Name
+                    printfn "Mute Rx level: %d" lowVolumeLevelConsideredMute
                     printfn "Option                                     Update keys             Current value"
                     printfn "--------------------------------------------------------------------"
                     printfn "Show on/off audio read values              [P]                     %b" Global.PrintAsyncOutput
@@ -325,7 +326,7 @@ module Process =
                     printfn "Lower noise limit                          [Left/Right Arrows]     %d" Global.AudioProfile.SoundIdealBottomLimit
                     printfn "IR signals to device ------------------------------------------------------"
                     printfn "Max volume IR increases                    [W/S Arrows]            %d" Global.AudioProfile.MaxIRIncreasesAllowed
-                    printfn "Min volume IR decreases                    [A/S Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
+                    printfn "Min volume IR decreases                    [A/D Arrows]            %d" Global.AudioProfile.MaxIRDecreasesAllowed
                     printfn "--------------------------------------------------------------------"
                     printf "Select an option: "
 
